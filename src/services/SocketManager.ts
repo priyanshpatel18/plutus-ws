@@ -1,19 +1,12 @@
 import "dotenv/config";
 import { WebSocket } from "ws";
-import { HEARTBEAT, UPDATE_USER } from "../messages";
-import { userJWT } from "../utils/auth";
+import { HEARTBEAT, PREDICTION } from "../messages";
 
 export class User {
   public socket: WebSocket;
-  public userId: string;
-  public name: string;
-  public email: string;
 
-  constructor(socket: WebSocket, user: userJWT) {
+  constructor(socket: WebSocket) {
     this.socket = socket;
-    this.userId = user.userId;
-    this.name = user.name;
-    this.email = user.email;
   }
 }
 
@@ -32,7 +25,6 @@ class SocketManager {
     return SocketManager.instance;
   }
 
-  // User
   addUser(user: User) {
     this.users.push(user);
     this.userHandler(user);
@@ -43,18 +35,17 @@ class SocketManager {
   private userHandler(user: User) {
     user.socket.on("message", (data: string) => {
       const message = JSON.parse(data.toString());
+      console.log(message);
+      
 
       if (message.type === HEARTBEAT) {
         user.socket.send(JSON.stringify({ type: HEARTBEAT }));
       }
-    });
-  }
 
-  sendMessage(payload: any, userId: string) {
-    const user = this.users.find((u) => u.userId === userId);
-    if (user) {
-      user.socket.send(JSON.stringify({ type: UPDATE_USER, payload }));
-    }
+      if (message.type === PREDICTION) {
+        
+      }
+    });
   }
 }
 
